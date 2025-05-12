@@ -25,6 +25,13 @@ const getCurrentTimeAsString = () => {
 const getQueueUrl = (queueName) => {
   const env = getEnvFromProcessArgsOrDefault();
   const accountId = getConfig(env).aws.accountId;
+  
+  // Use LocalStack endpoint if available
+  if (process.env.AWS_ENDPOINT_URL) {
+    return `${process.env.AWS_ENDPOINT_URL}/${accountId}/${queueName}`;
+  }
+  
+  // Otherwise use standard AWS URL format
   return `https://sqs.${process.env.AWS_REGION}.amazonaws.com/${accountId}/${queueName}`;
 };
 

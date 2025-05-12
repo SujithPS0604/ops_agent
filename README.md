@@ -8,6 +8,9 @@ This repository contains a Docker Compose setup for LocalStack with AWS services
   - SQS queues and DLQs defined in `dlqs.json`
 - **OpenSearch**: Search and analytics engine
 - **OpenSearch Dashboards**: UI for interacting with OpenSearch
+- **mcp-server-sse**: Server-Sent Events implementation for MCP communication
+- **mcp-api-server**: API server for handling requests
+- **ops-ui**: React-based frontend application
 
 ## Getting Started
 
@@ -35,6 +38,9 @@ docker-compose ps
 - **LocalStack AWS services**: http://localhost:4566
 - **OpenSearch**: http://localhost:9200
 - **OpenSearch Dashboards**: http://localhost:5601
+- **Ops UI**: http://localhost:3000
+- **MCP API Server**: http://localhost:3002
+- **MCP SSE Server**: http://localhost:3001
 
 ## Working with SQS Queues
 
@@ -82,6 +88,16 @@ curl -X GET "http://localhost:9200/logs/_search" -H 'Content-Type: application/j
   }
 }'
 ```
+
+## Using the Ops UI
+
+The Ops UI provides a user-friendly interface for interacting with all services:
+
+1. Access the UI at http://localhost:3000
+2. Use the interface to:
+   - Monitor SQS queues and DLQs
+   - Search logs in OpenSearch
+   - Perform operations through the MCP API
 
 ## Shutting Down
 

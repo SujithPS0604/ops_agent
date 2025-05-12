@@ -9,19 +9,33 @@ let osClient = null;
 
 const initializeOsClient = () => {
   if (osClient === null) {
-    osClient = new Client({
-      ...AwsSigv4Signer({
-        region: commonConfig.region,
-        service: "es",
-        getCredentials: () => {
-          const credentialsProvider = defaultProvider();
-          return credentialsProvider();
-        },
-      }),
-      node: getConfig(env).openSearch.host,
-      log: "debug",
-      requestTimeout: 10000,
-    });
+    const config = getConfig(env);
+    const host = config.openSearch.host;
+    
+    // For LocalStack or local OpenSearch (no AWS authentication)
+    if (host.includes('localhost') || process.env.AWS_ENDPOINT_URL) {
+      osClient = new Client({
+        node: host,
+        ssl: {
+          rejectUnauthorized: false
+        }
+      });
+    } else {
+      // For AWS OpenSearch Service
+      osClient = new Client({
+        ...AwsSigv4Signer({
+          region: commonConfig.region,
+          service: "es",
+          getCredentials: () => {
+            const credentialsProvider = defaultProvider();
+            return credentialsProvider();
+          },
+        }),
+        node: host,
+        log: "debug",
+        requestTimeout: 10000,
+      });
+    }
   }
 
   return osClient;

@@ -1,22 +1,25 @@
 const config = {
   nonlive: {
     aws: {
-      accountId: process.env.AWS_ACCOUNT_ID,
+      accountId: process.env.AWS_ACCOUNT_ID || '000000000000',
     },
     openSearch: {
-      host: process.env.OPENSEARCH_HOST,
-      indexId: process.env.OPENSEARCH_INDEX_ID,
-      defaultViewId: process.env.OPENSEARCH_DEFAULT_VIEW_ID
+      host: process.env.OPENSEARCH_HOST || 'http://localhost:9200',
+      indexId: process.env.OPENSEARCH_INDEX_ID || 'logs',
+      defaultViewId: process.env.OPENSEARCH_DEFAULT_VIEW_ID || 'default'
     },
   },
 };
 
 const commonConfig = {
-  region: process.env.AWS_REGION,
+  region: process.env.AWS_REGION || 'us-east-1',
+  endpoint: process.env.AWS_ENDPOINT_URL,
 };
 
 const getConfig = (env) => {
-  return config[process.env.ENVIRONMENT];
+  // Default to nonlive if environment is not set
+  const environment = process.env.ENVIRONMENT || 'nonlive';
+  return config[environment] || config.nonlive;
 };
 
 const getOpenSearchPermaLink = (env, key, value) => {

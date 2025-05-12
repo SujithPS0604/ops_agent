@@ -44,6 +44,56 @@ services:
       - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true"
     depends_on:
       - opensearch
+      
+  mcp-server-sse:
+    build:
+      context: ./ops-agent-backend
+      dockerfile: Dockerfile.mcp-server-sse
+    ports:
+      - "3001:3001"
+    environment:
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_ACCOUNT_ID=000000000000
+      - ENVIRONMENT=nonlive
+      - OPENSEARCH_HOST=http://opensearch:9200
+      - OPENSEARCH_INDEX_ID=logs
+      - OPENSEARCH_DEFAULT_VIEW_ID=default
+    depends_on:
+      - localstack
+      - opensearch
+
+  mcp-api-server:
+    build:
+      context: ./ops-agent-backend
+      dockerfile: Dockerfile.mcp-api-server
+    ports:
+      - "3002:3002"
+    environment:
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_ACCOUNT_ID=000000000000
+      - ENVIRONMENT=nonlive
+      - OPENSEARCH_HOST=http://opensearch:9200
+      - OPENSEARCH_INDEX_ID=logs
+      - OPENSEARCH_DEFAULT_VIEW_ID=default
+    depends_on:
+      - localstack
+      - opensearch
+      - mcp-server-sse
+
+  ops-ui:
+    build:
+      context: ./ops-ui
+    ports:
+      - "3000:80"
+    depends_on:
+      - mcp-api-server
+      - mcp-server-sse
 
 volumes:
   opensearch-data: 

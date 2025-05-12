@@ -8,7 +8,21 @@ import {
 } from "@aws-sdk/client-sqs";
 import {chunkEvery} from "../utils/process-utils.js";
 
-const client = new SQSClient({ region: "eu-central-1" });
+// Configure SQS client with LocalStack endpoint if available
+const clientConfig = { 
+  region: process.env.AWS_REGION || "us-east-1"
+};
+
+// Add endpoint URL for LocalStack
+if (process.env.AWS_ENDPOINT_URL) {
+  clientConfig.endpoint = process.env.AWS_ENDPOINT_URL;
+  clientConfig.credentials = {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || "test",
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "test"
+  };
+}
+
+const client = new SQSClient(clientConfig);
 
 const params = {
   MaxNumberOfMessages: 10,
