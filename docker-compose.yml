@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   localstack:
-    image: localstack/localstack:2.3.0
+    image: localstack/localstack:latest
     ports:
       - "4566:4566"
     environment:
@@ -10,12 +10,20 @@ services:
       - DEBUG=1
       - AWS_DEFAULT_REGION=us-east-1
       - PERSISTENCE=1
+      - HOSTNAME_EXTERNAL=localstack
+      - DISABLE_CORS_CHECKS=1
+      - USE_SSL=0
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
     volumes:
       - "${TMPDIR:-/tmp}/localstack:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./init-resources:/docker-entrypoint-initaws.d"
     networks:
       - ops-network
+    command: >
+      sh -c "apt-get update && apt-get install -y jq && 
+      /usr/local/bin/docker-entrypoint.sh"
 
   opensearch:
     image: opensearchproject/opensearch:2.11.0
@@ -58,7 +66,7 @@ services:
     ports:
       - "3001:3001"
     environment:
-      - AWS_ENDPOINT_URL=http://host.docker.internal:4566
+      - AWS_ENDPOINT_URL=http://sqs.us-east-1.localhost.localstack.cloud:4566
       - AWS_REGION=us-east-1
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
@@ -67,7 +75,6 @@ services:
       - OPENSEARCH_HOST=http://opensearch:9200
       - OPENSEARCH_INDEX_ID=logs
       - OPENSEARCH_DEFAULT_VIEW_ID=default
-      - MCP_AGENT_URL=http://host.docker.internal:3001/sse
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
       - OLLAMA_MODEL=llama3.2
       - FRONTEND_URL=http://host.docker.internal:3000
@@ -88,17 +95,20 @@ services:
     ports:
       - "3002:3002"
     environment:
-      - AWS_ENDPOINT_URL=http://host.docker.internal:4566
+      - AWS_ENDPOINT_URL=http://sqs.us-east-1.localhost.localstack.cloud:4566
       - AWS_REGION=us-east-1
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
       - AWS_ACCOUNT_ID=000000000000
       - ENVIRONMENT=nonlive
-      - OPENSEARCH_HOST=http://host.docker.internal:9200
+      - OPENSEARCH_HOST=http://opensearch:9200
       - OPENSEARCH_INDEX_ID=logs
       - OPENSEARCH_DEFAULT_VIEW_ID=default
       - ORDER_TABLE_NAME=billing.Order
       - FRONTEND_URL=http://localhost:3000
+      - MCP_AGENT_URL=http://mcp-server-sse:3001/sse
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - OLLAMA_MODEL=llama3.2
     depends_on:
       - localstack
       - opensearch

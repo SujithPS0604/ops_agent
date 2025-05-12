@@ -25,18 +25,21 @@ if (process.env.AWS_ENDPOINT_URL) {
   };
 }
 
+console.log(`SQS Client Config: ${JSON.stringify(clientConfig)}`);
 const client = new SQSClient(clientConfig);
 
 // Test functions
 async function listQueues() {
   try {
     const command = new ListQueuesCommand({});
+    console.log('Sending ListQueuesCommand...');
     const response = await client.send(command);
     console.log('Available queues:');
     console.log(response.QueueUrls);
     return response.QueueUrls;
   } catch (error) {
     console.error('Error listing queues:', error);
+    console.error('Error metadata:', JSON.stringify(error.$metadata));
     return [];
   }
 }
@@ -51,6 +54,7 @@ async function getQueueMessageCount(queueName) {
       QueueUrl: queueUrl,
       AttributeNames: [approximateNumberOfMessagesAttribute],
     };
+    console.log(`Sending GetQueueAttributesCommand with input: ${JSON.stringify(input)}`);
     const command = new GetQueueAttributesCommand(input);
     const response = await client.send(command);
     
@@ -59,6 +63,9 @@ async function getQueueMessageCount(queueName) {
     return count;
   } catch (error) {
     console.error(`Error getting message count for queue ${queueName}:`, error);
+    if (error.$metadata) {
+      console.error(`Error metadata: ${JSON.stringify(error.$metadata)}`);
+    }
     return -1;
   }
 }

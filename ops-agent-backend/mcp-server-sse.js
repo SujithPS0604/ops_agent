@@ -55,6 +55,7 @@ const setupTools = async (server) => {
     }, async ({ queueName }) => {
         try {
             const queueUrl = getQueueUrl(queueName);
+            console.log(`Queue URL for ${queueName}: ${queueUrl}`);
             const count = await getMessageCount(queueUrl);
             return {
                 content: [{

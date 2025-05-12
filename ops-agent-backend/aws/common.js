@@ -24,10 +24,11 @@ const getCurrentTimeAsString = () => {
 
 const getQueueUrl = (queueName) => {
   const env = getEnvFromProcessArgsOrDefault();
-  const accountId = getConfig(env).aws.accountId;
+  const accountId = getConfig(env).aws.accountId || process.env.AWS_ACCOUNT_ID || "000000000000";
   
   // Use LocalStack endpoint if available
   if (process.env.AWS_ENDPOINT_URL) {
+    // LocalStack requires this format with SDK v3
     return `${process.env.AWS_ENDPOINT_URL}/${accountId}/${queueName}`;
   }
   

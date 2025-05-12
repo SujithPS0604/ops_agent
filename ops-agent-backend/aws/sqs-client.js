@@ -15,13 +15,22 @@ const clientConfig = {
 
 // Add endpoint URL for LocalStack
 if (process.env.AWS_ENDPOINT_URL) {
+  console.log(`Configuring SQS client with LocalStack endpoint: ${process.env.AWS_ENDPOINT_URL}`);
   clientConfig.endpoint = process.env.AWS_ENDPOINT_URL;
+  
+  // For LocalStack, we need to specify credentials
   clientConfig.credentials = {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID || "test",
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "test"
   };
+  
+  // Tell AWS SDK to avoid signature v4 for LocalStack
+  // clientConfig.retryStrategy = {
+  //   maxRetries: 3
+  // };
 }
 
+console.log(`SQS Client config: ${JSON.stringify(clientConfig)}`);
 const client = new SQSClient(clientConfig);
 
 const params = {
@@ -39,6 +48,11 @@ const receiveMessagesFromSqs = async (queueUrl, visibilityTimeout) => {
     VisibilityTimeout: visibilityTimeout || 60,
     WaitTimeSeconds: 0,
   });
+
+  console.log(`Receiving messages from ${queueUrl}`);
+  console.log(command);
+  console.log(client.config);
+
   const { Messages } = await client.send(command);
 
   return Messages ? Messages.map((m) => JSON.parse(m.Body)) : null;
@@ -141,15 +155,26 @@ const sendMessageBatchToSqs = async (queueUrl, messages) => {
 };
 
 const getMessageCount = async (queueUrl) => {
-  const approximateNumberOfMessagesAttribute = "ApproximateNumberOfMessages";
-  const input = {
-    QueueUrl: queueUrl,
-    AttributeNames: [approximateNumberOfMessagesAttribute],
-  };
-  const command = new GetQueueAttributesCommand(input);
-  const response = await client.send(command);
+  try {
+    console.log(`Getting message count for queue URL: ${queueUrl}`);
+    const approximateNumberOfMessagesAttribute = "ApproximateNumberOfMessages";
+    const input = {
+      QueueUrl: queueUrl,
+      AttributeNames: [approximateNumberOfMessagesAttribute],
+    };
+    console.log(`Sending GetQueueAttributesCommand with input: ${JSON.stringify(input)}`);
+    const command = new GetQueueAttributesCommand(input);
+    const response = await client.send(command);
+    console.log(`Received response: ${JSON.stringify(response)}`);
 
-  return parseInt(response.Attributes[approximateNumberOfMessagesAttribute]);
+    return parseInt(response.Attributes[approximateNumberOfMessagesAttribute]);
+  } catch (error) {
+    console.error(`Error getting message count: ${error.message}`);
+    if (error.$metadata) {
+      console.error(`Error metadata: ${JSON.stringify(error.$metadata)}`);
+    }
+    throw error;
+  }
 };
 
 const deleteMessageBatch = async (queueUrl, entries) => {
