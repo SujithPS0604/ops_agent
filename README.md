@@ -1,6 +1,6 @@
-# LocalStack AWS Environment
+# OPS Agent
 
-This repository contains a Docker Compose setup for LocalStack with AWS services and OpenSearch for local development and testing.
+OPS Agent will help you to analyze and debug ops (live operations) issues. 
 
 ## Services
 
@@ -21,17 +21,27 @@ This repository contains a Docker Compose setup for LocalStack with AWS services
 
 ### Running the Environment
 
-1. Start all services:
+1. Build and start all services:
 
 ```bash
-docker-compose up -d
+docker-compose up --build -d
 ```
 
-2. Check if services are running:
+2. Initialize the SQS queues in LocalStack:
+
+```bash
+docker exec -it ops_agent-localstack-1 apt-get update && \
+docker exec -it ops_agent-localstack-1 apt-get install -y jq && \
+docker exec -it ops_agent-localstack-1 bash /docker-entrypoint-initaws.d/01-init-queues.sh
+```
+
+3. Check if services are running:
 
 ```bash
 docker-compose ps
 ```
+
+4. Access the UI at http://localhost:3000 and execute queries
 
 ### Accessing Services
 
@@ -98,6 +108,13 @@ The Ops UI provides a user-friendly interface for interacting with all services:
    - Monitor SQS queues and DLQs
    - Search logs in OpenSearch
    - Perform operations through the MCP API
+
+## Troubleshooting
+
+If you encounter connectivity issues with SQS services:
+- Ensure the initialization script has been run to create the queues
+- Check LocalStack logs with `docker logs ops_agent-localstack-1`
+- Verify the queue URLs are correctly formatted
 
 ## Shutting Down
 
