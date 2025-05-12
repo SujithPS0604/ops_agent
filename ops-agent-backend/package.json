@@ -1,0 +1,38 @@
+{
+  "name": "ops_automation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start-mcp-server": "node mcp-api/mcp-server-sse.js",
+    "start-api-server": "node mcp-api/mcp-api-server.js",
+    "start-ui": "cd mcp-ui && npm start",
+    "start-all": "concurrently \"npm run start-mcp-server\" \"npm run start-api-server\" \"npm run start-ui\""
+  },
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.799.0",
+    "@aws-sdk/client-sqs": "^3.799.0",
+    "@aws-sdk/credential-provider-node": "^3.782.0",
+    "@aws-sdk/lib-dynamodb": "^3.799.0",
+    "@json2csv/plainjs": "^7.0.6",
+    "@langchain/community": "^0.3.42",
+    "@langchain/core": "^0.3.55",
+    "@langchain/langgraph": "^0.2.68",
+    "@langchain/mcp-adapters": "^0.4.2",
+    "@langchain/ollama": "^0.2.0",
+    "@langchain/openai": "^0.5.10",
+    "@modelcontextprotocol/sdk": "^1.11.0",
+    "@opensearch-project/opensearch": "^3.5.1",
+    "concurrently": "^8.2.1",
+    "cors": "^2.8.5",
+    "csv": "6.3.11",
+    "kafkajs": "^2.2.4",
+    "langchain": "^0.3.24",
+    "mongodb": "^6.16.0",
+    "murmurhash-js": "^1.0.0",
+    "node-fetch": "^3.3.2",
+    "uuid": "^11.0.5",
+    "zod": "^3.24.4"
+  }
+}
