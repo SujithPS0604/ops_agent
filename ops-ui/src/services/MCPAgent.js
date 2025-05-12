@@ -3,7 +3,7 @@ import axios from 'axios';
 class MCPAgent {
   constructor() {
     // API endpoint for our API server
-    this.apiBaseUrl = 'http://localhost:3002'; 
+    this.apiBaseUrl = process.env.REACT_APP_API_BASE_URL; 
     console.log(`MCPAgent initialized with API URL: ${this.apiBaseUrl}`);
   }
 

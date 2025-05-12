@@ -58,7 +58,7 @@ services:
     ports:
       - "3001:3001"
     environment:
-      - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_ENDPOINT_URL=http://host.docker.internal:4566
       - AWS_REGION=us-east-1
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
@@ -67,10 +67,10 @@ services:
       - OPENSEARCH_HOST=http://opensearch:9200
       - OPENSEARCH_INDEX_ID=logs
       - OPENSEARCH_DEFAULT_VIEW_ID=default
-      - MCP_AGENT_URL=http://localhost:3001/sse
-      - OLLAMA_BASE_URL=http://localhost:11434
+      - MCP_AGENT_URL=http://host.docker.internal:3001/sse
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
       - OLLAMA_MODEL=llama3.2
-      - FRONTEND_URL=http://localhost:3000
+      - FRONTEND_URL=http://host.docker.internal:3000
       - ORDER_TABLE_NAME=billing.Order
     depends_on:
       - localstack
@@ -88,16 +88,17 @@ services:
     ports:
       - "3002:3002"
     environment:
-      - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_ENDPOINT_URL=http://host.docker.internal:4566
       - AWS_REGION=us-east-1
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
       - AWS_ACCOUNT_ID=000000000000
       - ENVIRONMENT=nonlive
-      - OPENSEARCH_HOST=http://opensearch:9200
+      - OPENSEARCH_HOST=http://host.docker.internal:9200
       - OPENSEARCH_INDEX_ID=logs
       - OPENSEARCH_DEFAULT_VIEW_ID=default
       - ORDER_TABLE_NAME=billing.Order
+      - FRONTEND_URL=http://localhost:3000
     depends_on:
       - localstack
       - opensearch
@@ -111,6 +112,9 @@ services:
   ops-ui:
     build:
       context: ./ops-ui
+      args:
+        - REACT_APP_API_BASE_URL=http://localhost:3002
+        - REACT_APP_MCP_AGENT_URL=http://localhost:3001/sse
     ports:
       - "3000:80"
     depends_on:
