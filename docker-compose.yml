@@ -14,6 +14,8 @@ services:
       - "${TMPDIR:-/tmp}/localstack:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./init-resources:/docker-entrypoint-initaws.d"
+    networks:
+      - ops-network
 
   opensearch:
     image: opensearchproject/opensearch:2.11.0
@@ -34,6 +36,8 @@ services:
         hard: 65536
     volumes:
       - opensearch-data:/usr/share/opensearch/data
+    networks:
+      - ops-network
 
   opensearch-dashboards:
     image: opensearchproject/opensearch-dashboards:2.11.0
@@ -44,6 +48,8 @@ services:
       - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true"
     depends_on:
       - opensearch
+    networks:
+      - ops-network
       
   mcp-server-sse:
     build:
@@ -61,9 +67,19 @@ services:
       - OPENSEARCH_HOST=http://opensearch:9200
       - OPENSEARCH_INDEX_ID=logs
       - OPENSEARCH_DEFAULT_VIEW_ID=default
+      - MCP_AGENT_URL=http://localhost:3001/sse
+      - OLLAMA_BASE_URL=http://localhost:11434
+      - OLLAMA_MODEL=llama3.2
+      - FRONTEND_URL=http://localhost:3000
+      - ORDER_TABLE_NAME=billing.Order
     depends_on:
       - localstack
       - opensearch
+    volumes:
+      - ./ops-agent-backend/.env:/app/.env
+      - ./ops-agent-backend/dlqs.json:/app/dlqs.json
+    networks:
+      - ops-network
 
   mcp-api-server:
     build:
@@ -81,10 +97,16 @@ services:
       - OPENSEARCH_HOST=http://opensearch:9200
       - OPENSEARCH_INDEX_ID=logs
       - OPENSEARCH_DEFAULT_VIEW_ID=default
+      - ORDER_TABLE_NAME=billing.Order
     depends_on:
       - localstack
       - opensearch
       - mcp-server-sse
+    volumes:
+      - ./ops-agent-backend/.env:/app/.env
+      - ./ops-agent-backend/dlqs.json:/app/dlqs.json
+    networks:
+      - ops-network
 
   ops-ui:
     build:
@@ -94,6 +116,12 @@ services:
     depends_on:
       - mcp-api-server
       - mcp-server-sse
+    networks:
+      - ops-network
 
 volumes:
-  opensearch-data: 
+  opensearch-data:
+
+networks:
+  ops-network:
+    driver: bridge 

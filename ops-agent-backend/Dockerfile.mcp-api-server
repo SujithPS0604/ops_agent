@@ -9,6 +9,10 @@ RUN npm install
 # Copy source code
 COPY . .
 
+# # Create directory structure expected by the scripts
+RUN mkdir -p mcp-api && \
+    ln -s /app/mcp-api-server.js /app/mcp-api/mcp-api-server.js
+
 # Expose API server port
 EXPOSE 3002
 

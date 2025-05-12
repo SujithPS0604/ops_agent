@@ -4,10 +4,11 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start-mcp-server": "node mcp-api/mcp-server-sse.js",
-    "start-api-server": "node mcp-api/mcp-api-server.js",
+    "start-mcp-server": "node -r dotenv/config mcp-server-sse.js",
+    "start-api-server": "node -r dotenv/config mcp-api-server.js",
     "start-ui": "cd mcp-ui && npm start",
-    "start-all": "concurrently \"npm run start-mcp-server\" \"npm run start-api-server\" \"npm run start-ui\""
+    "start-all": "concurrently \"npm run start-mcp-server\" \"npm run start-api-server\" \"npm run start-ui\"",
+    "test-localstack": "node test-localstack.js"
   },
   "type": "module",
   "dependencies": {
@@ -27,6 +28,7 @@
     "concurrently": "^8.2.1",
     "cors": "^2.8.5",
     "csv": "6.3.11",
+    "dotenv": "^16.3.1",
     "kafkajs": "^2.2.4",
     "langchain": "^0.3.24",
     "mongodb": "^6.16.0",

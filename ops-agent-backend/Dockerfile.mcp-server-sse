@@ -9,6 +9,10 @@ RUN npm install
 # Copy source code
 COPY . .
 
+# # Create directory structure expected by the scripts
+RUN mkdir -p mcp-api && \
+    ln -s /app/mcp-server-sse.js /app/mcp-api/mcp-server-sse.js
+
 # Expose SSE server port
 EXPOSE 3001
 
