@@ -1,118 +1,98 @@
-# Ops Agent
+# LocalStack AWS Environment
 
-This project consists of a frontend UI and a backend service for operations management. The application is split into two main components:
+This repository contains a Docker Compose setup for LocalStack with AWS services and OpenSearch for local development and testing.
 
-- `ops-ui`: React-based frontend application
-- `ops-agent-backend`: Node.js backend service
+## Services
 
-## Prerequisites
+- **LocalStack**: Emulates AWS services locally
+  - SQS queues and DLQs defined in `dlqs.json`
+- **OpenSearch**: Search and analytics engine
+- **OpenSearch Dashboards**: UI for interacting with OpenSearch
 
-- Node.js (v14 or higher)
-- npm (v6 or higher)
-- Git
+## Getting Started
 
-## Project Structure
+### Prerequisites
 
+- Docker and Docker Compose
+- AWS CLI (optional for manual testing)
+
+### Running the Environment
+
+1. Start all services:
+
+```bash
+docker-compose up -d
 ```
-ops-agent/
-├── ops-ui/              # Frontend React application
-└── ops-agent-backend/   # Backend Node.js service
+
+2. Check if services are running:
+
+```bash
+docker-compose ps
 ```
 
-## Setup Instructions
+### Accessing Services
 
-### Backend Setup
+- **LocalStack AWS services**: http://localhost:4566
+- **OpenSearch**: http://localhost:9200
+- **OpenSearch Dashboards**: http://localhost:5601
 
-1. Navigate to the backend directory:
-   ```bash
-   cd ops-agent-backend
-   ```
+## Working with SQS Queues
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+The following queues and Dead Letter Queues (DLQs) are automatically created from `dlqs.json`:
 
-3. Configure the backend:
-   - Review and update `config.js` with your specific configuration
-   - Ensure all required environment variables are set
+- order-queue → order-queue-dlq
+- order-cancellation-queue → order-cancellation-queue-dlq
 
-4. Start the backend server:
-   ```bash
-   ./start-mcp-api-server.sh
-   ```
+### Testing SQS Locally
 
-### Frontend Setup
+```bash
+# List queues
+aws --endpoint-url=http://localhost:4566 sqs list-queues
 
-1. Navigate to the frontend directory:
-   ```bash
-   cd ops-ui
-   ```
+# Send a message to a queue
+aws --endpoint-url=http://localhost:4566 sqs send-message \
+  --queue-url http://localhost:4566/000000000000/order-queue \
+  --message-body '{"orderId": "123456", "status": "created"}'
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+# Receive messages from a queue
+aws --endpoint-url=http://localhost:4566 sqs receive-message \
+  --queue-url http://localhost:4566/000000000000/order-queue
+```
 
-3. Start the development server:
-   ```bash
-   ./start.sh
-   ```
+## Working with OpenSearch
 
-## Running the Application
+Sample logs have been preloaded into the OpenSearch instance. You can access them via the OpenSearch API or using OpenSearch Dashboards.
 
-1. Start the backend server first:
-   ```bash
-   cd ops-agent-backend
-   ./start-mcp-api-server.sh
-   ```
+### Sample Query
 
-2. In a new terminal, start the frontend:
-   ```bash
-   cd ops-ui
-   ./start.sh
-   ```
+```bash
+# Search all logs
+curl -X GET "http://localhost:9200/logs/_search" -H 'Content-Type: application/json' -d '{
+  "query": {
+    "match_all": {}
+  }
+}'
 
-3. Access the application:
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:3001
+# Search for error logs
+curl -X GET "http://localhost:9200/logs/_search" -H 'Content-Type: application/json' -d '{
+  "query": {
+    "match": {
+      "level": "ERROR"
+    }
+  }
+}'
+```
 
-## Development
+## Shutting Down
 
-### Backend Development
+To stop all services:
 
-- The main backend files are:
-  - `mcp-api-server.js`: Main API server
-  - `mcp-agent.js`: Agent implementation
-  - `mcp-server-sse.js`: Server-Sent Events implementation
+```bash
+docker-compose down
+```
 
-### Frontend Development
+To remove all data (including volumes):
 
-- The frontend is built with React and uses:
-  - Custom configuration through `craco.config.js`
-  - Public assets in the `public/` directory
-  - Source code in the `src/` directory
-
-## Troubleshooting
-
-1. If you encounter port conflicts:
-   - Check if any other services are running on ports 3000 or 3001
-   - Update the port configuration in respective config files
-
-2. For dependency issues:
-   - Delete `node_modules` directory and `package-lock.json`
-   - Run `npm install` again
-
-3. For backend connection issues:
-   - Verify the backend server is running
-   - Check the API endpoint configuration in the frontend
-
-## Contributing
-
-1. Create a new branch for your feature
-2. Make your changes
-3. Submit a pull request
-
-## License
-
-[Add your license information here] 
+```bash
+docker-compose down -v
+``` 

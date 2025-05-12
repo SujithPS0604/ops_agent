@@ -1,0 +1,10 @@
+[
+  {
+    "dlqName": "order-queue-dlq",
+    "source": "order-queue"
+  },
+  {
+    "dlqName": "order-cancellation-queue-dlq",
+    "source": "order-cancellation-queue"
+  }
+] 

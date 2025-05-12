@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  localstack:
+    image: localstack/localstack:2.3.0
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=sqs,opensearch
+      - DEBUG=1
+      - AWS_DEFAULT_REGION=us-east-1
+      - PERSISTENCE=1
+    volumes:
+      - "${TMPDIR:-/tmp}/localstack:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./init-resources:/docker-entrypoint-initaws.d"
+
+  opensearch:
+    image: opensearchproject/opensearch:2.11.0
+    ports:
+      - "9200:9200"
+      - "9600:9600" 
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      - DISABLE_SECURITY_PLUGIN=true 
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.11.0
+    ports:
+      - "5601:5601"
+    environment:
+      - 'OPENSEARCH_HOSTS=["http://opensearch:9200"]'
+      - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true"
+    depends_on:
+      - opensearch
+
+volumes:
+  opensearch-data: 
