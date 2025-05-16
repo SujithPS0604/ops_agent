@@ -320,7 +320,8 @@ const PipelineView = ({ response }) => {
                       bgcolor: selectedMessageIndex === index ? color : `${color}20`
                     },
                     textTransform: 'none',
-                    whiteSpace: 'nowrap'
+                    whiteSpace: 'nowrap',
+                    minWidth: 'auto'
                   }}
                 >
                   {name}

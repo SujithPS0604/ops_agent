@@ -66,7 +66,7 @@ services:
     ports:
       - "3001:3001"
     environment:
-      - AWS_ENDPOINT_URL=http://sqs.us-east-1.localhost.localstack.cloud:4566
+      - AWS_ENDPOINT_URL=http://localstack:4566
       - AWS_REGION=us-east-1
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
@@ -95,7 +95,7 @@ services:
     ports:
       - "3002:3002"
     environment:
-      - AWS_ENDPOINT_URL=http://sqs.us-east-1.localhost.localstack.cloud:4566
+      - AWS_ENDPOINT_URL=http://localstack:4566
       - AWS_REGION=us-east-1
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
@@ -130,6 +130,36 @@ services:
     depends_on:
       - mcp-api-server
       - mcp-server-sse
+    networks:
+      - ops-network
+
+  migration:
+    image: alpine:latest
+    volumes:
+      - ./init-resources:/init-resources
+      - ./ops-agent-backend/dlqs.json:/init-resources/dlqs.json
+    depends_on:
+      - localstack
+      - opensearch
+      - mcp-server-sse
+      - mcp-api-server
+    entrypoint: >
+      sh -c "
+        echo 'Waiting for services to be fully up...' &&
+        sleep 15 &&
+        echo 'Running initialization scripts...' &&
+        apk add --no-cache bash curl jq aws-cli &&
+        chmod +x /init-resources/01-init-queues.sh &&
+        chmod +x /init-resources/02-init-opensearch.sh &&
+        bash /init-resources/01-init-queues.sh &&
+        bash /init-resources/02-init-opensearch.sh &&
+        echo 'Initialization completed successfully!'
+      "
+    environment:
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
     networks:
       - ops-network
 

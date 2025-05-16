@@ -50,10 +50,6 @@ const search = async (index, query, size) => {
   
   // Test connection first
   try {
-    info(`Testing OpenSearch connection...`);
-    const healthResponse = await osClient.cluster.health();
-    info(`OpenSearch cluster status: ${healthResponse.body.status}`);
-    
     // List available indices to help debug
     const indicesResponse = await osClient.cat.indices({ format: 'json' });
     info('Available indices:', indicesResponse.body);

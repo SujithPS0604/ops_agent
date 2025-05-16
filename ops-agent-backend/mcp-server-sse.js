@@ -80,10 +80,10 @@ const setupTools = async (server) => {
     });
 
     server.tool("fetchErrorLogs", {
-        eventId: z.string().optional().describe("The event ID to search for (optional)"),
+        traceId: z.string().optional().describe("The trace ID to search for (optional)"),
         level: z.string().optional().default("ERROR").describe("Log level to search for (default: ERROR)"),
         size: z.string().optional().default("10").describe("The maximum number of logs to return"),
-    }, async ({ eventId, level, size }) => {
+    }, async ({ traceId, level, size }) => {
         try {
             const config = getConfig();
             const indexPattern = config.openSearch.indexId || "cwl*"; 
@@ -108,14 +108,14 @@ const setupTools = async (server) => {
                 info(`[fetchErrorLogs] Added level filter: ${level}`);
             }
             
-            // Add eventId filter if provided
-            if (eventId && eventId.trim()) {
+            // Add traceId filter if provided
+            if (traceId && traceId.trim()) {
                 queryObj.bool.must.push({ 
                     term: { 
-                        trace_id: eventId 
+                        trace_id: traceId 
                     } 
                 });
-                info(`[fetchErrorLogs] Added trace_id filter: ${eventId}`);
+                info(`[fetchErrorLogs] Added trace_id filter: ${traceId}`);
             }
             
             // If no filters were added, search for all
@@ -126,23 +126,6 @@ const setupTools = async (server) => {
             
             info(`[fetchErrorLogs] Final search query:`, queryObj);
             
-            // Try direct curl request to verify OpenSearch is working
-            try {
-                const { exec } = await import('child_process');
-                const util = await import('util');
-                const execPromise = util.promisify(exec);
-                
-                info(`[fetchErrorLogs] Testing direct curl request to OpenSearch`);
-                
-                const curlCmd = `curl -s -X GET "http://opensearch:9200/${indexPattern}/_search" -H 'Content-Type: application/json' -d '{"query": ${JSON.stringify(JSON.stringify(queryObj))}}'`;
-                const { stdout } = await execPromise(curlCmd);
-                
-                info(`[fetchErrorLogs] Direct curl response:`, JSON.parse(stdout));
-            } catch (curlErr) {
-                error(`[fetchErrorLogs] Direct curl test failed:`, curlErr);
-            }
-            
-            info(`[fetchErrorLogs] Calling search function`);
             const logs = await search(indexPattern, queryObj, numSize);
             info(`[fetchErrorLogs] Search results count: ${logs.length}`);
             
@@ -153,7 +136,7 @@ const setupTools = async (server) => {
                         success: true, 
                         indexPattern,
                         query: queryObj,
-                        eventId, 
+                        traceId, 
                         logs, 
                         count: logs.length 
                     }, null, 2),
@@ -184,23 +167,23 @@ const setupTools = async (server) => {
         }
     });
 
-    server.tool("generateDlqSummary", {
-        maxMessagesToFetch: z.string().optional().default("10").describe("Maximum number of messages to fetch per queue"),
-        visibilityTimeout: z.string().optional().default("30").describe("Visibility timeout for the messages in seconds"),
-    }, async ({ maxMessagesToFetch, visibilityTimeout }) => {
-        try {
-            const data = await generateDlqSummary(parseInt(maxMessagesToFetch), parseInt(visibilityTimeout));
-            return {
-                content: [{
-                    type: "text",
-                    text: JSON.stringify({ success: true, messages: data, count: data.length }, null, 2),
-                }],
-            };
-        } catch (err) {
-            error("Error generating DLQ summary:", err);
-            return { success: false, error: err.message };
-        }
-    });
+//     server.tool("generateDlqSummary", {
+//         maxMessagesToFetch: z.string().optional().default("10").describe("Maximum number of messages to fetch per queue"),
+//         visibilityTimeout: z.string().optional().default("30").describe("Visibility timeout for the messages in seconds"),
+//     }, async ({ maxMessagesToFetch, visibilityTimeout }) => {
+//         try {
+//             const data = await generateDlqSummary(parseInt(maxMessagesToFetch), parseInt(visibilityTimeout));
+//             return {
+//                 content: [{
+//                     type: "text",
+//                     text: JSON.stringify({ success: true, messages: data, count: data.length }, null, 2),
+//                 }],
+//             };
+//         } catch (err) {
+//             error("Error generating DLQ summary:", err);
+//             return { success: false, error: err.message };
+//         }
+//     });
 };
 
 const createServerAndTools = async (req, res) => {

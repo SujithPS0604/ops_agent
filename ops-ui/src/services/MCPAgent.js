@@ -14,7 +14,7 @@ class MCPAgent {
       const response = await axios.post(`${this.apiBaseUrl}/api/invoke`, {
         prompt: prompt
       }, {
-        timeout: 60000 // 60 second timeout
+        timeout: 600000 // 10 minutes timeout
       });
       
       console.log('Response received from API');
