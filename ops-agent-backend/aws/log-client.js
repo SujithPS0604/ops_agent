@@ -2,11 +2,12 @@ import { search } from "./os-client.js";
 import { chunkEvery } from "../utils/process-utils.js";
 
 const DEFAULT_SIZE = 50;
-const INDEX = "cwl*";
+const INDEX = "cwl-logs";
 
 const _getMatchPhrase = (key, value) => ({ match_phrase: { [key]: value } });
 
 const getLogs = async (filter) => {
+  console.log("getLogs", filter);
   let esFilter = [];
   for (let key in filter) {
     const value = filter[key];

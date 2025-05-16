@@ -9,22 +9,28 @@ until curl -s http://opensearch:9200/_cluster/health > /dev/null; do
   sleep 5
 done
 
-# Create logs index
-curl -X PUT "http://opensearch:9200/logs" -H 'Content-Type: application/json' -d '{
-  "settings": {
-    "number_of_shards": 1,
-    "number_of_replicas": 0
-  },
-  "mappings": {
-    "properties": {
-      "@timestamp": { "type": "date" },
-      "level": { "type": "keyword" },
-      "message": { "type": "text" },
-      "service": { "type": "keyword" },
-      "trace_id": { "type": "keyword" }
+# Create index template for cwl* indices
+curl -X PUT "http://opensearch:9200/_index_template/cwl_template" -H 'Content-Type: application/json' -d '{
+  "index_patterns": ["cwl*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0
+    },
+    "mappings": {
+      "properties": {
+        "@timestamp": { "type": "date" },
+        "level": { "type": "keyword" },
+        "message": { "type": "text" },
+        "service": { "type": "keyword" },
+        "trace_id": { "type": "keyword" }
+      }
     }
   }
 }'
+
+# Create logs index
+curl -X PUT "http://opensearch:9200/cwl-logs" -H 'Content-Type: application/json'
 
 echo "Creating sample logs..."
 
@@ -32,7 +38,7 @@ echo "Creating sample logs..."
 CURRENT_TIMESTAMP=$(date +%s000)
 
 # Sample log entries
-curl -X POST "http://opensearch:9200/logs/_bulk" -H 'Content-Type: application/ndjson' -d '
+curl -X POST "http://opensearch:9200/cwl-logs/_bulk" -H 'Content-Type: application/json' -d '
 {"index":{}}
 {"@timestamp": "'$(date -u +"%Y-%m-%dT%H:%M:%S.000Z" -d @$((CURRENT_TIMESTAMP/1000 - 300)))'"  , "level": "INFO", "message": "Application started successfully", "service": "api-gateway", "trace_id": "trace-123456"}
 {"index":{}}

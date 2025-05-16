@@ -4,8 +4,8 @@ const config = {
       accountId: process.env.AWS_ACCOUNT_ID || '000000000000',
     },
     openSearch: {
-      host: process.env.OPENSEARCH_HOST || 'http://localhost:9200',
-      indexId: process.env.OPENSEARCH_INDEX_ID || 'logs',
+      host: process.env.OPENSEARCH_HOST || 'http://opensearch:9200',
+      indexId: process.env.OPENSEARCH_INDEX_ID || 'cwl-logs',
       defaultViewId: process.env.OPENSEARCH_DEFAULT_VIEW_ID || 'default'
     },
   },
