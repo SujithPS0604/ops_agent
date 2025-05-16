@@ -45,7 +45,7 @@ export async function invokeMcpAgent(prompt) {
 
     // Run the agent with the provided prompt
     return await agent.invoke({
-      messages: [{role: "user", content: prompt}],
+      messages: [{role: "user", content: `/no_think ${prompt}`}],
       return_intermediate_steps: true,
     });
   } catch (error) {

@@ -14,6 +14,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import MCPAgent from './services/MCPAgent';
 import PipelineView from './components/PipelineView';
+import MarkdownResponseView from './components/MarkdownResponseView';
 
 // Google-inspired theme
 const theme = createTheme({
@@ -51,6 +52,28 @@ function App() {
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Helper function to extract final answer content
+  const getFinalAnswer = (messages) => {
+    if (!messages || messages.length === 0) return '';
+    
+    // Find the final AI message with content (last AIMessage without tool calls)
+    const finalMessage = [...messages].reverse().find(msg => {
+      const msgType = msg.id?.[msg.id?.length - 1] || 
+                     (msg.type || 
+                      ((msg.content || msg.kwargs?.content) && !msg.name ? 'AIMessage' : 
+                       (msg.name && msg.content ? 'ToolMessage' : 'Unknown')));
+      
+      return msgType === 'AIMessage' && (!msg.tool_calls || msg.tool_calls.length === 0)
+        && (msg.kwargs?.content || msg.content);
+    });
+    
+    if (finalMessage) {
+      return finalMessage.kwargs?.content || finalMessage.content;
+    }
+    
+    return '';
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -200,12 +223,18 @@ function App() {
               sx={{
                 width: '100%',
                 maxWidth: 700,
-                borderRadius: 2
+                borderRadius: 2,
+                mb: 4
               }}
             >
               <CardContent>
-                <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
-                  Response
+                {/* Display the markdown response view first */}
+                {response?.response?.messages && 
+                  <MarkdownResponseView content={getFinalAnswer(response.response.messages)} />
+                }
+                
+                <Typography variant="h6" component="h2" sx={{ mb: 2, mt: 2 }}>
+                  Pipeline Details
                 </Typography>
                 <PipelineView response={response} />
               </CardContent>
@@ -216,6 +245,5 @@ function App() {
     </ThemeProvider>
   );
 }
-
 
 export default App;

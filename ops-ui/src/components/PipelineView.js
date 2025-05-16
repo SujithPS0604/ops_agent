@@ -376,46 +376,6 @@ const PipelineView = ({ response }) => {
         </Box>
       )}
 
-      {/* Show final answer prominently if available and no stage is selected */}
-      {selectedMessageIndex === null && messages.length > 0 && (
-        (() => {
-          // Find the final AI message with content (last AIMessage without tool calls)
-          const finalMessage = [...messages].reverse().find(msg => {
-            const msgType = msg.id?.[msg.id?.length - 1] || getMessageType(msg);
-            return msgType === 'AIMessage' && (!msg.tool_calls || msg.tool_calls.length === 0)
-              && (msg.kwargs?.content || msg.content);
-          });
-
-          if (finalMessage) {
-            const content = finalMessage.kwargs?.content || finalMessage.content;
-
-            return (
-              <Box sx={{ mt: 1 }}>
-                <Paper
-                  variant="outlined"
-                  sx={{
-                    p: 3,
-                    borderRadius: 2,
-                    bgcolor: '#f0f7ff',
-                    borderColor: '#4285F4',
-                    borderWidth: 2
-                  }}
-                >
-                  <Typography variant="h6" gutterBottom color="#4285F4" sx={{ fontWeight: 'bold' }}>
-                    Final Answer
-                  </Typography>
-                  <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
-                    {content}
-                  </Typography>
-                </Paper>
-              </Box>
-            );
-          }
-
-          return null;
-        })()
-      )}
-
       {/* Raw data accordion */}
       <Accordion sx={{ mt: 3 }}>
         <AccordionSummary
