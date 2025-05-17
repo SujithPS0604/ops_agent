@@ -26,7 +26,7 @@ let transport;
 
 const setupTools = async (server) => {
     // Tool definitions remain unchanged
-    server.tool("fetchDlqMessages", {
+    server.tool("fetchDlqMessages", "Retrieves messages from a Dead Letter Queue using its URL.", {
         queueUrl: z.string().describe("The URL of the SQS DLQ"),
         visibilityTimeout: z.string().optional().default("30").describe("Visibility timeout for the messages in seconds"),
     }, async ({ queueUrl, visibilityTimeout }) => {
@@ -41,7 +41,7 @@ const setupTools = async (server) => {
         }
     });
 
-    server.tool("fetchDlqMessagesByQueueName", {
+    server.tool("fetchDlqMessagesByQueueName", "Retrieves messages from a Dead Letter Queue using its name.", {
         queueName: z.string().describe("The name of the SQS DLQ"),
         visibilityTimeout: z.string().optional().default("30").describe("Visibility timeout for the messages in seconds"),
     }, async ({ queueName, visibilityTimeout }) => {
@@ -60,7 +60,7 @@ const setupTools = async (server) => {
         }
     });
 
-    server.tool("getQueueMessageCount", {
+    server.tool("getQueueMessageCount", "Gets the number of messages in an SQS queue.", {
         queueName: z.string().describe("The name of the SQS queue"),
     }, async ({ queueName }) => {
         try {
@@ -77,9 +77,9 @@ const setupTools = async (server) => {
             error(`Error getting message count for queue ${queueName}:`, err);
             return { success: false, error: err.message };
         }
-    });
+});
 
-    server.tool("fetchErrorLogs", {
+    server.tool("fetchErrorLogs", "Searches for error logs in OpenSearch, optionally filtered by trace ID and log level.", {
         traceId: z.string().optional().describe("The trace ID to search for (optional)"),
         level: z.string().optional().default("ERROR").describe("Log level to search for (default: ERROR)"),
         size: z.string().optional().default("10").describe("The maximum number of logs to return"),
@@ -157,7 +157,7 @@ const setupTools = async (server) => {
         }
     });
 
-    server.tool("listAvailableDlqs", {}, async () => {
+    server.tool("listAvailableDlqs", "Lists all available Dead Letter Queues configured in the system.", {}, async () => {
         try {
             const dlqs = JSON.parse(fs.readFileSync("./dlqs.json", "utf-8"));
             return { content: [{ type: "text", text: JSON.stringify({ success: true, dlqs }, null, 2) }] };
@@ -183,7 +183,7 @@ const setupTools = async (server) => {
 //             error("Error generating DLQ summary:", err);
 //             return { success: false, error: err.message };
 //         }
-//     });
+//     }, "Generates a summary of messages across all Dead Letter Queues for analysis.");
 };
 
 const createServerAndTools = async (req, res) => {

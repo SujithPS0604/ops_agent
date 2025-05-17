@@ -73,7 +73,7 @@ services:
       - AWS_ACCOUNT_ID=000000000000
       - ENVIRONMENT=nonlive
       - OPENSEARCH_HOST=http://opensearch:9200
-      - OPENSEARCH_INDEX_ID=logs
+      - OPENSEARCH_INDEX_ID=cwl-logs
       - OPENSEARCH_DEFAULT_VIEW_ID=default
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
       - OLLAMA_MODEL=qwen3:8b
@@ -102,7 +102,7 @@ services:
       - AWS_ACCOUNT_ID=000000000000
       - ENVIRONMENT=nonlive
       - OPENSEARCH_HOST=http://opensearch:9200
-      - OPENSEARCH_INDEX_ID=logs
+      - OPENSEARCH_INDEX_ID=cwl-logs
       - OPENSEARCH_DEFAULT_VIEW_ID=default
       - ORDER_TABLE_NAME=billing.Order
       - FRONTEND_URL=http://localhost:3000
