@@ -68,7 +68,6 @@ aws --endpoint-url=${AWS_ENDPOINT_URL} sqs send-message \
     "traceId": "ce79cdee-0e35-4d47-84b0-9d3247266382",
     "eventId": "5667d0d2-290a-4f92-b776-7cf5fb26a1eb",
     "eventTime": "2023-07-11T06:44:56.856134Z",
-    "context": "billing",
     "type": "ORDER_CREATED",
     "originEventTime": "2023-07-11T06:44:56.856Z",
     "version": "0.1.0",
@@ -83,7 +82,7 @@ aws --endpoint-url=${AWS_ENDPOINT_URL} sqs send-message \
             "id": "80c5cce3-61a3-291e-91a0-d4d52ff6494d",
             "name": "Premium Widget"
           },
-          "salesOrderPositionItems": [
+          "orderPositionItems": [
             {
               "id": "3ccce605-61a3-291e-91a0-d4d52ff6494d",
               "status": "CREATED"
@@ -101,7 +100,6 @@ aws --endpoint-url=${AWS_ENDPOINT_URL} sqs send-message \
     "traceId": "fe89cdee-1e35-4d47-84b0-9d3247266390",
     "eventId": "6778d0d2-290a-4f92-b776-7cf5fb26a1ec",
     "eventTime": "2023-07-12T09:22:13.412134Z",
-    "context": "billing",
     "type": "ORDER_CREATED",
     "originEventTime": "2023-07-12T09:22:13.412Z",
     "version": "0.1.0",
@@ -116,7 +114,7 @@ aws --endpoint-url=${AWS_ENDPOINT_URL} sqs send-message \
             "id": "90d6dde4-72b4-382f-92b1-e5e63ff7505e",
             "name": "Deluxe Package"
           },
-          "salesOrderPositionItems": [
+          "orderPositionItems": [
             {
               "id": "4dddf706-72b4-382f-92b1-e5e63ff7505e",
               "status": "CREATED"
@@ -136,7 +134,6 @@ aws --endpoint-url=${AWS_ENDPOINT_URL} sqs send-message \
     "traceId": "ae59cdee-2e45-5d57-95b0-9d3247266456",
     "eventId": "7899d0d2-390a-5f93-c886-7cf5fb26a1fd",
     "eventTime": "2023-07-13T14:33:45.123134Z",
-    "context": "orders",
     "type": "ORDER_CANCELLED",
     "originEventTime": "2023-07-13T14:33:45.123Z",
     "version": "0.1.0",

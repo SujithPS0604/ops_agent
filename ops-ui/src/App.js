@@ -1,5 +1,6 @@
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import SearchIcon from '@mui/icons-material/Search';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import {
   Box,
   Button,
@@ -14,13 +15,16 @@ import {
   TextField,
   Typography,
   Switch,
-  FormControlLabel
+  FormControlLabel,
+  Collapse,
+  IconButton
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import React, { useState, useEffect } from 'react';
 import MarkdownResponseView from './components/MarkdownResponseView';
 import PipelineView from './components/PipelineView';
 import ThinkingView from './components/ThinkingView';
+import AdminPanel from './components/AdminPanel';
 import MCPAgent from './services/MCPAgent';
 
 // Create animations for the thinking animation
@@ -85,6 +89,7 @@ function App() {
   const [thinkingContent, setThinkingContent] = useState('');
   const [finalAnswer, setFinalAnswer] = useState('');
   const [thinkingModeEnabled, setThinkingModeEnabled] = useState(false);
+  const [adminPanelOpen, setAdminPanelOpen] = useState(false);
 
   // Helper function to extract final answer content
   const getFinalAnswer = (messages) => {
@@ -188,13 +193,31 @@ function App() {
             <span className="green">Agent</span>
           </Typography>
 
+          {/* Admin Panel Toggle */}
+          <Box sx={{ width: '100%', maxWidth: 1200, mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
+            <Button
+              variant="outlined"
+              startIcon={<AdminPanelSettingsIcon />}
+              onClick={() => setAdminPanelOpen(!adminPanelOpen)}
+              size="small"
+              sx={{ borderRadius: 2 }}
+            >
+              {adminPanelOpen ? "Hide Admin Panel" : "Show Admin Panel"}
+            </Button>
+          </Box>
+
+          {/* Admin Panel */}
+          <Collapse in={adminPanelOpen} sx={{ width: '100%', maxWidth: 1200, mb: 2 }}>
+            <AdminPanel />
+          </Collapse>
+
           {/* Search Form */}
           <Paper 
             elevation={3} 
             sx={{ 
               p: 2, 
               width: '100%', 
-              maxWidth: 584,
+              maxWidth: 1200,
               borderRadius: 3,
               mb: 4
             }}
@@ -273,7 +296,7 @@ function App() {
                   flexDirection: 'column',
                   alignItems: 'center',
                   width: '100%',
-                  maxWidth: 700,
+                  maxWidth: 1200,
                   mb: 4
                 }}
               >
@@ -298,7 +321,7 @@ function App() {
                   />
                 </Box>
                 <Typography variant="h6" sx={{ color: '#4285F4', fontWeight: 'medium' }}>
-                  Thinking...
+                  {thinkingModeEnabled ? "Thinking...🤔" : "Processing...🤖(thinking is disabled)"}
                 </Typography>
               </Box>
             </Grow>
@@ -311,7 +334,7 @@ function App() {
               sx={{ 
                 p: 3, 
                 width: '100%', 
-                maxWidth: 700, 
+                maxWidth: 1200, 
                 borderRadius: 2,
                 bgcolor: '#FEECEB',
                 color: '#D93025',
@@ -333,7 +356,7 @@ function App() {
                 elevation={2}
                 sx={{
                   width: '100%',
-                  maxWidth: 700,
+                  maxWidth: 1200,
                   borderRadius: 2,
                   mb: 4
                 }}

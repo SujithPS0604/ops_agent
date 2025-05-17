@@ -143,14 +143,14 @@ Sample logs have been preloaded into the OpenSearch instance. You can access the
 
 ```bash
 # Search all logs
-curl -X GET "http://localhost:9200/logs/_search" -H 'Content-Type: application/json' -d '{
+curl -X GET "http://localhost:9200/cwl-logs/_search" -H 'Content-Type: application/json' -d '{
   "query": {
     "match_all": {}
   }
 }'
 
 # Search for error logs
-curl -X GET "http://localhost:9200/logs/_search" -H 'Content-Type: application/json' -d '{
+curl -X GET "http://localhost:9200/cwl-logs/_search" -H 'Content-Type: application/json' -d '{
   "query": {
     "match": {
       "level": "ERROR"
