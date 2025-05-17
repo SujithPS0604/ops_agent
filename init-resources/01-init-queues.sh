@@ -55,11 +55,15 @@ done
 echo "Listing all queues:"
 aws --endpoint-url=${AWS_ENDPOINT_URL} sqs list-queues
 
+
 # Add sample DLQ messages
 echo "Adding sample DLQ messages..."
 
 # Sample DLQ message with trace ID - Failed order event
 ORDER_DLQ_URL=$(aws --endpoint-url=${AWS_ENDPOINT_URL} sqs get-queue-url --queue-name order-queue-dlq --query 'QueueUrl' --output text)
+
+# Purge the queues
+aws --endpoint-url=${AWS_ENDPOINT_URL} sqs purge-queue --queue-url ${ORDER_DLQ_URL}
 
 # Sample order event 1
 aws --endpoint-url=${AWS_ENDPOINT_URL} sqs send-message \
@@ -127,6 +131,8 @@ aws --endpoint-url=${AWS_ENDPOINT_URL} sqs send-message \
 
 # Sample order cancellation event for the second DLQ
 CANCEL_DLQ_URL=$(aws --endpoint-url=${AWS_ENDPOINT_URL} sqs get-queue-url --queue-name order-cancellation-queue-dlq --query 'QueueUrl' --output text)
+
+aws --endpoint-url=${AWS_ENDPOINT_URL} sqs purge-queue --queue-url ${CANCEL_DLQ_URL}
 
 aws --endpoint-url=${AWS_ENDPOINT_URL} sqs send-message \
   --queue-url ${CANCEL_DLQ_URL} \

@@ -9,6 +9,12 @@ until curl -s http://opensearch:9200/_cluster/health > /dev/null; do
   sleep 5
 done
 
+# Delete the index template
+curl -X DELETE "http://opensearch:9200/_index_template/cwl_template"
+
+# Delete the index
+curl -X DELETE "http://opensearch:9200/cwl-logs"
+
 # Create index template for cwl* indices
 curl -X PUT "http://opensearch:9200/_index_template/cwl_template" -H 'Content-Type: application/json' -d '{
   "index_patterns": ["cwl*"],
