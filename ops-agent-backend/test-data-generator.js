@@ -81,7 +81,7 @@ const generateOpenSearchEvent = (eventType) => {
       message = errorMessages[Math.floor(Math.random() * errorMessages.length)];
       level = 'ERROR';
       break;
-    case 'warn':
+    case 'warning':
       message = `Warning: ${errorMessages[Math.floor(Math.random() * errorMessages.length)].toLowerCase()}`;
       level = 'WARN';
       break;
@@ -101,7 +101,7 @@ const generateOpenSearchEvent = (eventType) => {
     user_id: userId,
     request_id: uuidv4(),
     duration_ms: Math.floor(Math.random() * 5000),
-    status_code: eventType === 'error' ? 500 : (eventType === 'warn' ? 400 : 200),
+    status_code: eventType === 'error' ? 500 : (eventType === 'warning' ? 400 : 200),
     metadata: {
       environment: Math.random() > 0.5 ? 'production' : 'staging',
       region: Math.random() > 0.5 ? 'us-east-1' : 'eu-west-1',

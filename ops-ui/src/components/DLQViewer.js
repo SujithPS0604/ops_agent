@@ -79,7 +79,7 @@ const DLQViewer = () => {
 
       <Collapse in={alertOpen}>
         <Alert
-          severity={error ? "warn" : "info"}
+          severity={error ? "warning" : "info"}
           action={
             <IconButton
               aria-label="close"

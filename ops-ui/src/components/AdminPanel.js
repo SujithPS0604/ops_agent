@@ -198,7 +198,7 @@ const AdminPanel = () => {
                     onChange={(e) => setEventType(e.target.value)}
                   >
                     <FormControlLabel value="error" control={<Radio />} label="Error" />
-                    <FormControlLabel value="warn" control={<Radio />} label="Warning" />
+                    <FormControlLabel value="warning" control={<Radio />} label="Warning" />
                     <FormControlLabel value="info" control={<Radio />} label="Info" />
                   </RadioGroup>
                 </FormControl>
