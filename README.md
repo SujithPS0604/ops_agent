@@ -18,30 +18,40 @@ OPS Agent will help you to analyze and debug ops (live operations) issues.
 
 - Docker and Docker Compose
 - AWS CLI (optional for manual testing)
+- [Ollama](https://ollama.ai/) - for local LLM processing
+
+### Setting Up Ollama
+
+1. Download and install Ollama from [ollama.ai](https://ollama.ai/)
+2. Start the Ollama service
+3. Pull the required model:
+
+```bash
+ollama pull qwen3:8b
+```
 
 ### Running the Environment
 
-1. Build and start all services:
+1. Build and start all services with a single command:
 
 ```bash
-docker-compose up --build -d
+docker-compose up --build
 ```
 
-2. Initialize the SQS queues in LocalStack:
+This command will:
+- Build all required Docker images
+- Start the containers
+- Initialize SQS queues and populate them with sample data via the migration service
+- Load sample logs into OpenSearch
+- Set up all necessary infrastructure for the OPS Agent to work
 
-```bash
-docker exec -it ops_agent-localstack-1 apt-get update && \
-docker exec -it ops_agent-localstack-1 apt-get install -y jq && \
-docker exec -it ops_agent-localstack-1 bash /docker-entrypoint-initaws.d/01-init-queues.sh
-```
-
-3. Check if services are running:
+2. Check if services are running:
 
 ```bash
 docker-compose ps
 ```
 
-4. Access the UI at http://localhost:3000 and execute queries
+3. Access the UI at http://localhost:3000 and execute queries
 
 ### Accessing Services
 
@@ -51,6 +61,56 @@ docker-compose ps
 - **Ops UI**: http://localhost:3000
 - **MCP API Server**: http://localhost:3002
 - **MCP SSE Server**: http://localhost:3001
+
+## Working with the Agent
+
+OPS Agent provides two operational modes to analyze and solve problems:
+
+### Agent Without Thinking Mode
+
+In the standard mode, the agent processes your queries and returns the final results without showing the internal reasoning process:
+
+![Agent without thinking mode](/screenshots/agent-without-thinking-mode.png)
+
+This mode is optimized for quick answers and a cleaner interface.
+
+### Agent With Thinking Mode
+
+When the thinking mode is enabled, OPS Agent shows its complete reasoning process, displaying each step of its analysis:
+
+![Agent with thinking mode](/screenshots/agent-with-thinking-mode.png)
+
+The thinking mode reveals:
+- Internal thought processes
+- Tools being used
+- Step-by-step reasoning
+- Intermediate results
+
+### Agent Thinking Process
+
+The agent uses a structured approach to solve problems:
+
+![Agent thinking process](/screenshots/agent-thinking-process.png)
+
+This includes:
+1. Parsing and understanding your query
+2. Planning the steps to address the issue
+3. Selecting and using appropriate tools
+4. Analyzing data from multiple sources
+5. Formulating a response based on collected information
+
+### Agent Internal Process with Tools
+
+The agent leverages various tools to gather and process information:
+
+![Agent internal process with tools](/screenshots/agent-internal-process-with-tools.png)
+
+These tools include:
+- Log retrieval and analysis
+- Queue inspection
+- Trace correlation
+- Pattern recognition
+- Data summarization
 
 ## Working with SQS Queues
 
@@ -108,6 +168,7 @@ The Ops UI provides a user-friendly interface for interacting with all services:
    - Monitor SQS queues and DLQs
    - Search logs in OpenSearch
    - Perform operations through the MCP API
+   - Toggle between standard and thinking modes
 
 ## Troubleshooting
 
@@ -115,6 +176,11 @@ If you encounter connectivity issues with SQS services:
 - Ensure the initialization script has been run to create the queues
 - Check LocalStack logs with `docker logs ops_agent-localstack-1`
 - Verify the queue URLs are correctly formatted
+
+If Ollama isn't connecting:
+- Ensure Ollama is running on your host machine
+- Check that the qwen3:8b model has been pulled
+- Verify that host.docker.internal is accessible from containers
 
 ## Shutting Down
 
