@@ -12,7 +12,9 @@ import {
   Grow,
   Paper,
   TextField,
-  Typography
+  Typography,
+  Switch,
+  FormControlLabel
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import React, { useState, useEffect } from 'react';
@@ -82,6 +84,7 @@ function App() {
   const [error, setError] = useState(null);
   const [thinkingContent, setThinkingContent] = useState('');
   const [finalAnswer, setFinalAnswer] = useState('');
+  const [thinkingModeEnabled, setThinkingModeEnabled] = useState(false);
 
   // Helper function to extract final answer content
   const getFinalAnswer = (messages) => {
@@ -130,10 +133,13 @@ function App() {
 
     setLoading(true);
     setError(null);
+    setResponse(null);
     setThinkingContent('');
 
     try {
-      const result = await MCPAgent.invokeAgent(prompt);
+      // Format prompt based on thinking mode
+      const formattedPrompt = thinkingModeEnabled ?  prompt : `/no_think ${prompt}`;
+      const result = await MCPAgent.invokeAgent(formattedPrompt);
       setResponse(result);
     } catch (err) {
       console.error('Error invoking Ops agent:', err);
@@ -226,8 +232,21 @@ function App() {
                   disabled={loading || !prompt.trim()}
                   sx={{ mr: 1, px: 3 }}
                 >
-                  {loading ? <CircularProgress size={24} color="inherit" /> : "Ops Search"}
+                  {loading ? <CircularProgress size={24} color="inherit" /> : "Ask"}
                 </Button>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={thinkingModeEnabled}
+                      onChange={(e) => setThinkingModeEnabled(!!e.target.checked)}
+                      color="primary"
+                      disabled={loading}
+                      size="small"
+                    />
+                  }
+                  label="Thinking Mode"
+                  sx={{ mx: 1 }}
+                />
                 <Button
                   variant="outlined"
                   onClick={() => {
@@ -342,12 +361,6 @@ function App() {
       </Container>
     </ThemeProvider>
   );
-
-  function renderThinking() {
-    return (<span>
-      hi
-    </span>);
-  }
 }
 
 export default App;
