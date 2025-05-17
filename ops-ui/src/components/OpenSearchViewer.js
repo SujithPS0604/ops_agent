@@ -29,7 +29,7 @@ const getLevelColor = (level) => {
     case 'ERROR':
       return 'error';
     case 'WARN':
-      return 'warning';
+      return 'warn';
     case 'INFO':
       return 'success';
     default:
@@ -94,7 +94,7 @@ const OpenSearchViewer = () => {
             >
               <MenuItem value="">All</MenuItem>
               <MenuItem value="error">Error</MenuItem>
-              <MenuItem value="warning">Warning</MenuItem>
+              <MenuItem value="warn">Warning</MenuItem>
               <MenuItem value="info">Info</MenuItem>
             </Select>
           </FormControl>
@@ -111,7 +111,7 @@ const OpenSearchViewer = () => {
 
       <Collapse in={alertOpen}>
         <Alert
-          severity={error ? "warning" : "info"}
+          severity={error ? "warn" : "info"}
           action={
             <IconButton
               aria-label="close"

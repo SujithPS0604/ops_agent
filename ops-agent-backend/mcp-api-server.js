@@ -106,10 +106,10 @@ app.post('/api/generate/opensearch', async (req, res) => {
       });
     }
     
-    if (!['error', 'warning', 'info'].includes(eventType)) {
+    if (!['error', 'warn', 'info'].includes(eventType)) {
       return res.status(400).json({
         success: false,
-        message: 'Event type must be one of: error, warning, info'
+        message: 'Event type must be one of: error, warn, info'
       });
     }
     
