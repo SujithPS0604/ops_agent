@@ -111,7 +111,7 @@ const setupTools = async (server) => {
             // Add traceId filter if provided
             if (traceId && traceId.trim()) {
                 queryObj.bool.must.push({ 
-                    term: { 
+                    match: { 
                         trace_id: traceId 
                     } 
                 });
