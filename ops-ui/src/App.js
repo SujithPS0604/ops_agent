@@ -1,20 +1,42 @@
-import React, { useState } from 'react';
+import PsychologyIcon from '@mui/icons-material/Psychology';
+import SearchIcon from '@mui/icons-material/Search';
 import {
   Box,
-  Container,
-  TextField,
   Button,
-  Typography,
-  Paper,
-  CircularProgress,
   Card,
-  CardContent
+  CardContent,
+  CircularProgress,
+  Container,
+  CssBaseline,
+  Fade,
+  Grow,
+  Paper,
+  TextField,
+  Typography
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import MCPAgent from './services/MCPAgent';
-import PipelineView from './components/PipelineView';
+import React, { useState, useEffect } from 'react';
 import MarkdownResponseView from './components/MarkdownResponseView';
+import PipelineView from './components/PipelineView';
+import ThinkingView from './components/ThinkingView';
+import MCPAgent from './services/MCPAgent';
+
+// Create animations for the thinking animation
+const pulseAnimation = {
+  '@keyframes pulse': {
+    '0%': { transform: 'scale(1)' },
+    '50%': { transform: 'scale(1.05)' },
+    '100%': { transform: 'scale(1)' }
+  }
+};
+
+const floatAnimation = {
+  '@keyframes float': {
+    '0%': { transform: 'translateY(0px)' },
+    '50%': { transform: 'translateY(-10px)' },
+    '100%': { transform: 'translateY(0px)' }
+  }
+};
 
 // Google-inspired theme
 const theme = createTheme({
@@ -44,6 +66,12 @@ const theme = createTheme({
         },
       },
     },
+    MuiCssBaseline: {
+      styleOverrides: {
+        ...pulseAnimation,
+        ...floatAnimation
+      }
+    }
   },
 });
 
@@ -52,6 +80,8 @@ function App() {
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [thinkingContent, setThinkingContent] = useState('');
+  const [finalAnswer, setFinalAnswer] = useState('');
 
   // Helper function to extract final answer content
   const getFinalAnswer = (messages) => {
@@ -69,11 +99,29 @@ function App() {
     });
     
     if (finalMessage) {
-      return finalMessage.kwargs?.content || finalMessage.content;
+      const content = finalMessage.kwargs?.content || finalMessage.content;
+      
+      // Extract thinking content from <think> tags
+      const thinkingMatch = content.match(/\<think\>([\s\S]*?)\<\/think\>/);
+      if (thinkingMatch && thinkingMatch[1]) {
+        setThinkingContent(thinkingMatch[1].trim() || "-- thinking is turned off --");
+      }
+      
+      return content;
     }
     
     return '';
   };
+
+  // Process response and extract final answer once when response changes
+  useEffect(() => {
+    if (response?.response?.messages) {
+      const answerContent = getFinalAnswer(response.response.messages);
+      setFinalAnswer(answerContent);
+    } else {
+      setFinalAnswer('');
+    }
+  }, [response]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -82,6 +130,7 @@ function App() {
 
     setLoading(true);
     setError(null);
+    setThinkingContent('');
 
     try {
       const result = await MCPAgent.invokeAgent(prompt);
@@ -102,6 +151,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
+      <CssBaseline />
       <Container maxWidth="md">
         <Box 
           sx={{ 
@@ -184,6 +234,7 @@ function App() {
                     setPrompt('');
                     setResponse(null);
                     setError(null);
+                    setThinkingContent('');
                   }}
                   disabled={loading}
                   sx={{ px: 3 }}
@@ -193,6 +244,46 @@ function App() {
               </Box>
             </form>
           </Paper>
+
+          {/* Thinking indicator */}
+          {loading && (
+            <Grow in={loading}>
+              <Box 
+                sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  width: '100%',
+                  maxWidth: 700,
+                  mb: 4
+                }}
+              >
+                <Box 
+                  sx={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    p: 3, 
+                    borderRadius: '50%',
+                    bgcolor: '#E8F0FE',
+                    mb: 2,
+                    animation: 'pulse 1.5s infinite ease-in-out'
+                  }}
+                >
+                  <PsychologyIcon 
+                    sx={{ 
+                      fontSize: 60, 
+                      color: '#4285F4',
+                      animation: 'float 3s infinite ease-in-out'
+                    }} 
+                  />
+                </Box>
+                <Typography variant="h6" sx={{ color: '#4285F4', fontWeight: 'medium' }}>
+                  Thinking...
+                </Typography>
+              </Box>
+            </Grow>
+          )}
 
           {/* Display response */}
           {error && (
@@ -218,32 +309,45 @@ function App() {
           )}
 
           {response && !error && (
-            <Card
-              elevation={2}
-              sx={{
-                width: '100%',
-                maxWidth: 700,
-                borderRadius: 2,
-                mb: 4
-              }}
-            >
-              <CardContent>
-                {/* Display the markdown response view first */}
-                {response?.response?.messages && 
-                  <MarkdownResponseView content={getFinalAnswer(response.response.messages)} />
-                }
-                
-                <Typography variant="h6" component="h2" sx={{ mb: 2, mt: 2 }}>
-                  Pipeline Details
-                </Typography>
-                <PipelineView response={response} />
-              </CardContent>
-            </Card>
+            <Fade in={!loading}>
+              <Card
+                elevation={2}
+                sx={{
+                  width: '100%',
+                  maxWidth: 700,
+                  borderRadius: 2,
+                  mb: 4
+                }}
+              >
+                <CardContent>
+                  {/* Display the markdown response view first */}
+                  {response?.response?.messages && 
+                    <MarkdownResponseView content={finalAnswer} />
+                  }
+                  
+                  {/* Display thinking content if available */}
+                  {thinkingContent && (
+                     <ThinkingView content={thinkingContent} />
+                  )}
+                  
+                  <Typography variant="h6" component="h2" sx={{ mb: 2, mt: 2 }}>
+                    Internal Process
+                  </Typography>
+                  <PipelineView response={response} />
+                </CardContent>
+              </Card>
+            </Fade>
           )}
         </Box>
       </Container>
     </ThemeProvider>
   );
+
+  function renderThinking() {
+    return (<span>
+      hi
+    </span>);
+  }
 }
 
 export default App;

@@ -5,6 +5,27 @@ import { materialLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Box, Paper, Typography } from '@mui/material';
 
 const MarkdownResponseView = ({ content }) => {
+  // Filter out content within <think></think> tags using string methods instead of regex
+  let filteredContent = content;
+  const startTag = "<think>";
+  const endTag = "</think>";
+  
+  let startIndex = filteredContent.indexOf(startTag);
+  let endIndex = filteredContent.indexOf(endTag);
+  
+  // Remove all occurrences of <think>...</think>
+  while (startIndex !== -1 && endIndex !== -1) {
+    // +7 to include the closing tag length "</think>"
+    filteredContent = filteredContent.substring(0, startIndex) + filteredContent.substring(endIndex + endTag.length);
+    
+    // Check for more occurrences
+    startIndex = filteredContent.indexOf(startTag);
+    endIndex = filteredContent.indexOf(endTag);
+  }
+  
+  // Trim any excess whitespace
+  filteredContent = filteredContent.trim();
+  
   return (
     <Box sx={{ mb: 4 }}>
       <Paper
@@ -81,7 +102,7 @@ const MarkdownResponseView = ({ content }) => {
               }
             }}
           >
-            {content}
+            {filteredContent}
           </ReactMarkdown>
         </Box>
       </Paper>
