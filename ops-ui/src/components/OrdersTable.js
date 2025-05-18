@@ -12,6 +12,7 @@ import {
   Chip,
   CircularProgress,
   Alert,
+  Button,
 } from '@mui/material';
 import { fetchOrders } from '../services/dynamodbService';
 
@@ -32,6 +33,7 @@ const OrdersTable = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   useEffect(() => {
     const loadOrders = async () => {
@@ -71,9 +73,11 @@ const OrdersTable = () => {
           <TableHead>
             <TableRow>
               <TableCell>Order Number</TableCell>
+              <TableCell>Order ID</TableCell>
               <TableCell>Order Date</TableCell>
               <TableCell>Product</TableCell>
               <TableCell>Status</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -82,6 +86,7 @@ const OrdersTable = () => {
                 position.orderPositionItems.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell>{order.orderNumber}</TableCell>
+                    <TableCell>{order.orderId}</TableCell>
                     <TableCell>
                       {new Date(order.orderDate).toLocaleString()}
                     </TableCell>
@@ -93,6 +98,11 @@ const OrdersTable = () => {
                         size="small"
                       />
                     </TableCell>
+                    <TableCell>
+                      <Button variant="contained" color="primary" onClick={() => setSelectedOrder(order)}> 
+                        Details
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))
               )
@@ -100,6 +110,19 @@ const OrdersTable = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      {selectedOrder && (
+        <OrderDetails order={selectedOrder} onClose={() => setSelectedOrder(null)} />
+      )}
+    </Box>
+  );
+};
+
+const OrderDetails = ({ order, onClose }) => {
+  return (
+    <Box sx={{ mt: 2 }}>
+      <Typography variant="h6">Order Details</Typography>
+      <Button variant="contained" color="primary" onClick={onClose}>Close</Button>
+      <pre>{JSON.stringify(order, null, 2)}</pre>
     </Box>
   );
 };

@@ -10,6 +10,7 @@ import {getQueueUrl} from "./aws/common.js";
 import {getConfig} from "./config.js";
 import {info, error, logToConsole} from "./utils/logger.js";
 import fs from "fs";
+import { getOrders, getOrderTableByOrderId } from "./aws/dynamodb.js";
 
 const app = express();
 app.use(express.json());
@@ -166,6 +167,29 @@ const setupTools = async (server) => {
             return { success: false, error: err.message };
         }
     });
+
+    server.tool("getOrderTableByOrderId", "Gets the order table by order id.", {
+        orderId: z.string().describe("The order id to search for"),
+    }, async ({ orderId }) => {
+        try {
+            const order = await getOrderTableByOrderId(orderId);
+            return { content: [{ type: "text", text: JSON.stringify({ success: true, order }, null, 2) }] };
+        } catch (err) {
+            error("Error getting order table by order id:", err);
+            return { success: false, error: err.message };  
+        }
+    });
+
+    server.tool("getOrders", "Gets all orders from the order table.", {}, async () => {
+        try {
+            const orders = await getOrders();
+            return { content: [{ type: "text", text: JSON.stringify({ success: true, orders }, null, 2) }] };
+        } catch (err) {
+            error("Error getting orders:", err);
+            return { success: false, error: err.message };
+        }
+    });
+
 
 //     server.tool("generateDlqSummary", {
 //         maxMessagesToFetch: z.string().optional().default("10").describe("Maximum number of messages to fetch per queue"),

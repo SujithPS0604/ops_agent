@@ -24,6 +24,9 @@ for i in {1..30}; do
   fi
 done
 
+# Delete orders table if it exists
+aws --endpoint-url=${AWS_ENDPOINT_URL} dynamodb delete-table --table-name orders
+
 # Create orders table
 echo "Creating orders table..."
 aws --endpoint-url=${AWS_ENDPOINT_URL} dynamodb create-table \

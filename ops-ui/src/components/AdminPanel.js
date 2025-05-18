@@ -129,7 +129,6 @@ const AdminPanel = () => {
 
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={activeTab} onChange={handleTabChange} aria-label="admin panel tabs">
-            <Tab label="Generate Test Data" />
             <Tab label="View DLQ Messages" />
             <Tab label="View OpenSearch Logs" />
             <Tab label="Orders" />
@@ -137,96 +136,14 @@ const AdminPanel = () => {
         </Box>
 
         <TabPanel value={activeTab} index={0}>
-          <Grid container spacing={3}>
-            {/* DLQ Generator */}
-            <Grid item xs={12} md={6}>
-              <Box sx={{ p: 2, border: '1px solid #E0E0E0', borderRadius: 1 }}>
-                <Typography variant="subtitle1" gutterBottom>
-                  Generate DLQ Messages
-                </Typography>
-                <Box sx={{ mb: 2 }}>
-                  <Typography id="dlq-count-slider" gutterBottom>
-                    Message Count: {dlqCount}
-                  </Typography>
-                  <Slider
-                    value={dlqCount}
-                    onChange={(_, newValue) => setDlqCount(newValue)}
-                    aria-labelledby="dlq-count-slider"
-                    valueLabelDisplay="auto"
-                    step={1}
-                    marks
-                    min={1}
-                    max={10}
-                  />
-                </Box>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleGenerateDLQ}
-                  disabled={loading.dlq}
-                  fullWidth
-                >
-                  {loading.dlq ? <CircularProgress size={24} /> : "Generate DLQ Messages"}
-                </Button>
-              </Box>
-            </Grid>
-
-            {/* OpenSearch Generator */}
-            <Grid item xs={12} md={6}>
-              <Box sx={{ p: 2, border: '1px solid #E0E0E0', borderRadius: 1 }}>
-                <Typography variant="subtitle1" gutterBottom>
-                  Generate OpenSearch Events
-                </Typography>
-                <Box sx={{ mb: 2 }}>
-                  <Typography id="os-count-slider" gutterBottom>
-                    Event Count: {osCount}
-                  </Typography>
-                  <Slider
-                    value={osCount}
-                    onChange={(_, newValue) => setOsCount(newValue)}
-                    aria-labelledby="os-count-slider"
-                    valueLabelDisplay="auto"
-                    step={1}
-                    marks
-                    min={1}
-                    max={10}
-                  />
-                </Box>
-                <FormControl component="fieldset" sx={{ mb: 2 }}>
-                  <FormLabel component="legend">Event Type</FormLabel>
-                  <RadioGroup
-                    row
-                    value={eventType}
-                    onChange={(e) => setEventType(e.target.value)}
-                  >
-                    <FormControlLabel value="error" control={<Radio />} label="Error" />
-                    <FormControlLabel value="warning" control={<Radio />} label="Warning" />
-                    <FormControlLabel value="info" control={<Radio />} label="Info" />
-                  </RadioGroup>
-                </FormControl>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleGenerateOpenSearch}
-                  disabled={loading.os}
-                  fullWidth
-                >
-                  {loading.os ? <CircularProgress size={24} /> : "Generate OpenSearch Events"}
-                </Button>
-              </Box>
-            </Grid>
-          </Grid>
-        </TabPanel>
-
-        <TabPanel value={activeTab} index={1}>
           <DLQViewer />
         </TabPanel>
 
-        <TabPanel value={activeTab} index={2}>
+        <TabPanel value={activeTab} index={1}>
           <OpenSearchViewer />
         </TabPanel>
 
-        <TabPanel value={activeTab} index={3}>
+        <TabPanel value={activeTab} index={2}>
           <OrdersTable />
         </TabPanel>
       </CardContent>
