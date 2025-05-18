@@ -6,7 +6,7 @@ services:
     ports:
       - "4566:4566"
     environment:
-      - SERVICES=sqs,opensearch
+      - SERVICES=sqs,opensearch,dynamodb
       - DEBUG=1
       - AWS_DEFAULT_REGION=us-east-1
       - PERSISTENCE=1
@@ -161,8 +161,10 @@ services:
         apk add --no-cache bash curl jq aws-cli &&
         chmod +x /init-resources/01-init-queues.sh &&
         chmod +x /init-resources/02-init-opensearch.sh &&
+        chmod +x /init-resources/03-init-orders.sh &&
         bash /init-resources/01-init-queues.sh &&
         bash /init-resources/02-init-opensearch.sh &&
+        bash /init-resources/03-init-orders.sh &&
         echo 'Initialization completed successfully!'
       "
     environment:

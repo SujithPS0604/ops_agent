@@ -13,6 +13,7 @@
   "type": "module",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.799.0",
+    "@aws-sdk/client-opensearch": "^3.782.0",
     "@aws-sdk/client-sqs": "^3.799.0",
     "@aws-sdk/credential-provider-node": "^3.782.0",
     "@aws-sdk/lib-dynamodb": "^3.799.0",

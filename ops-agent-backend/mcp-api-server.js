@@ -3,6 +3,7 @@ import { invokeMcpAgent } from './mcp-agent.js';
 import { sendDLQMessages, generateOpenSearchLogs } from './test-data-generator.js';
 import { getDLQMessages } from './aws/dlq-client.js';
 import { getOpenSearchLogs } from './aws/opensearch-client.js';
+import { getOrders } from './aws/dynamodb.js';
 import fs from 'fs';
 
 const app = express();
@@ -232,6 +233,28 @@ app.get('/api/opensearch/logs', async (req, res) => {
     return res.status(500).json({
       success: false,
       message: error.message || 'An error occurred while fetching OpenSearch logs'
+    });
+  }
+});
+
+// API endpoint for fetching orders
+app.get('/api/orders', async (req, res) => {
+  try {
+    console.log('Fetching orders from DynamoDB');
+    
+    const orders = await getOrders();
+    
+    return res.json({
+      success: true,
+      count: orders.length,
+      orders: orders
+    });
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'An error occurred while fetching orders'
     });
   }
 });

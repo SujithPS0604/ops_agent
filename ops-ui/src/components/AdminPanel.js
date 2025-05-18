@@ -26,6 +26,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import TestDataGenerator from '../services/TestDataGenerator';
 import DLQViewer from './DLQViewer';
 import OpenSearchViewer from './OpenSearchViewer';
+import OrdersTable from './OrdersTable';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -131,6 +132,7 @@ const AdminPanel = () => {
             <Tab label="Generate Test Data" />
             <Tab label="View DLQ Messages" />
             <Tab label="View OpenSearch Logs" />
+            <Tab label="Orders" />
           </Tabs>
         </Box>
 
@@ -204,7 +206,7 @@ const AdminPanel = () => {
                 </FormControl>
                 <Button
                   variant="contained"
-                  color="secondary"
+                  color="primary"
                   onClick={handleGenerateOpenSearch}
                   disabled={loading.os}
                   fullWidth
@@ -222,6 +224,10 @@ const AdminPanel = () => {
 
         <TabPanel value={activeTab} index={2}>
           <OpenSearchViewer />
+        </TabPanel>
+
+        <TabPanel value={activeTab} index={3}>
+          <OrdersTable />
         </TabPanel>
       </CardContent>
     </Card>

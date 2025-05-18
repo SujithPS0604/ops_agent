@@ -17,7 +17,9 @@ import {
   Switch,
   FormControlLabel,
   Collapse,
-  IconButton
+  IconButton,
+  Tabs,
+  Tab
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import React, { useState, useEffect } from 'react';
@@ -25,6 +27,7 @@ import MarkdownResponseView from './components/MarkdownResponseView';
 import PipelineView from './components/PipelineView';
 import ThinkingView from './components/ThinkingView';
 import AdminPanel from './components/AdminPanel';
+import OrdersTable from './components/OrdersTable';
 import MCPAgent from './services/MCPAgent';
 
 // Create animations for the thinking animation
@@ -90,6 +93,7 @@ function App() {
   const [finalAnswer, setFinalAnswer] = useState('');
   const [thinkingModeEnabled, setThinkingModeEnabled] = useState(false);
   const [adminPanelOpen, setAdminPanelOpen] = useState(false);
+  const [adminTab, setAdminTab] = useState(0);
 
   // Helper function to extract final answer content
   const getFinalAnswer = (messages) => {
@@ -158,6 +162,10 @@ function App() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAdminTabChange = (event, newValue) => {
+    setAdminTab(newValue);
   };
 
   return (
