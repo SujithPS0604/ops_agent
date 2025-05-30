@@ -1,0 +1,213 @@
+# OPS Agent System Architecture and Data Flow Documentation
+
+## 1. Container Architecture
+- The entire system is containerized using Docker and orchestrated with Docker Compose
+- All services run in isolated containers connected through a bridge network (`ops-network`)
+- The system uses a microservices architecture for better scalability and maintainability
+
+## 2. Core Services
+
+### a) LocalStack (AWS Service Emulation)
+- Runs on port 4566
+- Emulates AWS services locally:
+  - SQS (Message Queues)
+  - DynamoDB (NoSQL Database)
+  - OpenSearch (Search Service)
+- Uses test credentials (AWS_ACCESS_KEY_ID=test, AWS_SECRET_ACCESS_KEY=test)
+- Persists data in `${TMPDIR}/localstack`
+
+### b) OpenSearch Stack
+- OpenSearch (port 9200)
+  - Search and analytics engine
+  - Single-node configuration
+  - Memory optimized (512MB heap)
+  - Security disabled for local development
+- OpenSearch Dashboards (port 5601)
+  - Web interface for OpenSearch
+  - Connected to OpenSearch instance
+
+### c) MCP (Model Context Protocol) Services
+- mcp-server-sse (port 3001)
+  - Server-Sent Events implementation
+  - Handles real-time communication
+  - Implements MCP tools for:
+    - Queue message operations
+    - Log searching
+    - DLQ analysis
+    - Order table operations
+- mcp-api-server (port 3002)
+  - REST API server
+  - Handles HTTP requests
+  - Integrates with MCP agent
+  - CORS enabled for frontend communication
+
+### d) Frontend (ops-ui)
+- React-based single-page application
+- Served through Nginx (port 80)
+- Features:
+  - Real-time updates via SSE
+  - Queue monitoring
+  - Log analysis
+  - AI-powered troubleshooting
+
+## 3. AI and LLM Integration
+- Uses Ollama for local LLM processing
+- Model: qwen3:8b
+- LangChain integration for:
+  - Tool creation and management
+  - Agent orchestration
+  - Multi-step reasoning
+- MCP adapters for standardized tool usage
+
+## 4. Data Flow
+
+### a) User Interaction Flow
+```
+User → Frontend (ops-ui) → Nginx → MCP API Server
+                                    ↓
+                              MCP SSE Server
+                                    ↓
+                              LocalStack Services
+```
+
+### b) Message Processing Flow
+```
+Order Service → SQS Queue → Processing → Success/Failure
+                                    ↓
+                              DLQ (if failed)
+                                    ↓
+                              Log Generation
+                                    ↓
+                              OpenSearch
+```
+
+### c) Frontend to Backend Communication
+- User requests flow through Nginx (port 80)
+- Nginx routes requests to appropriate services:
+  - `/api/*` → MCP API Server (port 3002)
+  - `/sse` → MCP SSE Server (port 3001)
+  - `/mcp` → MCP Server (port 3001)
+
+### d) Queue Processing
+- Messages enter the system through SQS queues
+- Processing flow:
+  1. Message received in main queue
+  2. Processing attempted
+  3. If successful → Message deleted
+  4. If failed → Message moved to DLQ
+  5. DLQ messages can be:
+     - Retried
+     - Analyzed
+     - Deleted after processing
+
+### e) Log Processing
+- Logs are generated during message processing
+- Log structure includes:
+  - Timestamp
+  - Level (INFO, WARN, ERROR)
+  - Message
+  - Service name
+  - Trace ID
+  - Event ID
+- Logs are indexed in OpenSearch
+- Can be queried through OpenSearch Dashboards
+
+### f) AI Processing Flow
+```
+User Query → MCP Agent → LangChain → Ollama LLM
+    ↓
+Tool Selection
+    ↓
+Data Collection (SQS/DynamoDB/OpenSearch)
+    ↓
+Analysis and Response
+```
+
+## 5. Data Storage and Retrieval
+
+### a) OpenSearch
+- Stores and indexes logs
+- Provides search capabilities
+- Supports complex queries
+- Real-time data access
+
+### b) DynamoDB (via LocalStack)
+- Stores order data
+- Provides fast key-value access
+- Supports complex queries
+
+### c) SQS Queues
+- Main queues for processing
+- DLQs for failed messages
+- Message persistence
+- Visibility timeout management
+
+## 6. Real-time Updates
+```
+Event → MCP SSE Server → Frontend
+  ↓
+Server-Sent Events
+  ↓
+Real-time UI Updates
+```
+
+## 7. Error Handling Flow
+```
+Error Occurrence → Log Generation
+      ↓
+Message to DLQ
+      ↓
+Error Analysis
+      ↓
+Retry/Resolution
+```
+
+## 8. Initialization Flow
+```
+Migration Service → LocalStack
+      ↓
+Queue Creation
+      ↓
+OpenSearch Setup
+      ↓
+Sample Data Loading
+```
+
+## 9. Data Backup and Recovery
+- DLQ messages are backed up
+- Logs are persisted in OpenSearch
+- Order data in DynamoDB
+- Queue messages in SQS
+
+## 10. Monitoring and Analysis
+```
+OpenSearch Dashboards → Log Analysis
+      ↓
+Queue Monitoring
+      ↓
+Error Tracking
+      ↓
+Performance Metrics
+```
+
+## 11. Security Flow
+```
+Request → Nginx
+   ↓
+CORS Check
+   ↓
+Service Authentication
+   ↓
+Data Access Control
+```
+
+## System Benefits
+- Reliable message processing
+- Real-time updates
+- Efficient error handling
+- Comprehensive logging
+- Secure data access
+- Scalable operations
+- Easy monitoring and debugging
+
+The system is designed to handle operational issues efficiently while maintaining data integrity and providing real-time insights into system operations. 
